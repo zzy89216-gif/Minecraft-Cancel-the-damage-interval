@@ -11,7 +11,7 @@
 [![Fabric](https://img.shields.io/badge/Loader-Fabric-lightgrey)](https://fabricmc.net/)
 [![NeoForge](https://img.shields.io/badge/Loader-NeoForge-red)](https://neoforged.net/)
 [![Quilt](https://img.shields.io/badge/Loader-Quilt-blueviolet)](https://quiltmc.org/)
-[![Java](https://img.shields.io/badge/Java-17%2B-red)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-8%20%7C%2017%20%7C%2021%20%7C%2025-red)](https://www.oracle.com/java/)
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/license/mit/)
 [![Status](https://img.shields.io/badge/Status-Long--Term%20Maintenance-brightgreen)](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval)
 
