@@ -6,11 +6,11 @@
 
 *Minecraft Forge 1.20.1 战斗机制重构模组*
 
-![Minecraft]()
-![Forge Loader]()
-![Java]()
-![License]()
-![Status]()
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-62B47A)](https://www.minecraft.net/)
+[![Forge Loader](https://img.shields.io/badge/Forge-47.1.3%2B-orange)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
+[![Java](https://img.shields.io/badge/Java-17-red)](https://www.oracle.com/java/)
+[![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/license/mit/)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval)
 
 </div>
 
