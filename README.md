@@ -6,11 +6,14 @@
 
 *Minecraft Forge 1.20.1 战斗机制重构模组*
 
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-62B47A)](https://www.minecraft.net/)
-[![Forge Loader](https://img.shields.io/badge/Forge-47.1.3%2B-orange)](https://files.minecraftforge.net/net/minecraftforge/forge/index_1.20.1.html)
-[![Java](https://img.shields.io/badge/Java-17-red)](https://www.oracle.com/java/)
+[![Minecraft](https://img.shields.io/badge/Minecraft-Java%20Edition-62B47A)](https://www.minecraft.net/)
+[![Forge](https://img.shields.io/badge/Loader-Forge-orange)](https://files.minecraftforge.net/)
+[![Fabric](https://img.shields.io/badge/Loader-Fabric-lightgrey)](https://fabricmc.net/)
+[![NeoForge](https://img.shields.io/badge/Loader-NeoForge-red)](https://neoforged.net/)
+[![Quilt](https://img.shields.io/badge/Loader-Quilt-blueviolet)](https://quiltmc.org/)
+[![Java](https://img.shields.io/badge/Java-17%2B-red)](https://www.oracle.com/java/)
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/license/mit/)
-[![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen)](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval)
+[![Status](https://img.shields.io/badge/Status-Long--Term%20Maintenance-brightgreen)](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval)
 
 </div>
 
