@@ -233,7 +233,9 @@ CTDI_RCON_PORT=25575 python3 tools/damage_test.py FORGE-1.20.1        # 有 CTDI
 ## 9. GitHub 操作备忘
 
 - 仓库：`zzy89216-gif/Minecraft-Cancel-the-damage-interval`（MIT）
-- Token 只放环境变量，**任何文件/提交/日志里都不要出现 token**（提交前可 `git log -p --all | grep -c "ghp_\|github_pat_"` 自检）
+- Token 只放环境变量，**任何文件/提交/日志里都不要出现 token**
+  （自检：在仓库里搜 `_pat_` 与 access-token 的前缀；注意别把前缀字面量写进文档，
+  否则以后每次自检都会误报一次）
 - Release 命名：`v<版本号>`；资产名 `ctdi-<loader>-<mcversion>-<modversion>.jar`
 - 推送用一次性 header，不要写进 `.git/config`：
   ```bash
