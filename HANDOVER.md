@@ -1,15 +1,21 @@
 # CTDI 交接日志
 
 > 写给下一个接手本项目的开发者 / AI Agent。
-> 最后更新：2026-09-24，v0.1.0（首个可构建、可运行的版本）
+> 最后更新：2026-09-24，v0.1.0（首个可构建、可运行、已发布的版本）
 
 ---
 
 ## 1. 当前状态（一句话）
 
-**Minecraft 1.20.1 + Forge 47.2.0 的 CTDI 已经写完并构建通过**：
+**Minecraft 1.20.1 + Forge 47.2.0 的 CTDI 已经写完、构建通过、实机验证并发布**：
 移除无敌帧 + 移除攻击冷却，两个 Mixin 共约 40 行核心代码，
 `./gradlew build` 产出可直接投放的 `build/libs/ctdi-0.1.0.jar`。
+
+- 仓库：https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval （public，MIT）
+- 发布：https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval/releases/tag/v0.1.0
+  （资产 `ctdi-0.1.0.jar`，8223 字节，
+  sha256 `fda6eb8d64c7c60c6c187a80eaa79a32f24d0c0e927d862500b6466af9976152`）
+- 已实测验证的范围（含对照实验）见 §5，**未验证的部分写得同样明确**。
 
 ---
 
@@ -197,6 +203,38 @@ python3 <仓库>/tools/damage_test.py WITH-CTDI
 - Release 命名：`v<版本号>`，说明用 CHANGELOG 对应段落
 - 构建产物文件名规律：`ctdi-<版本号>.jar`（版本号改 `gradle.properties` 的
   `mod_version`）
+
+### Token 权限（2026-09-24 踩过）
+
+只读 Token 的表现：
+
+```
+HTTP 403 Resource not accessible by personal access token
+x-accepted-github-permissions: metadata=read
+git push → 403 denied to <user>
+```
+
+`GET /repos/...` 返回的 `permissions: {admin: true, push: true, ...}` 是**仓库所有者
+本人**的权限，**不代表 Token 的权限**，不能用它判断能否 push。
+
+要完成"push 代码 + 发 Release"，Fine-grained PAT 需要：
+
+- Repository access：选中 `Minecraft-Cancel-the-damage-interval`
+- **Contents: Read and write**（push 提交、创建 tag、发 Release 都靠它）
+- Metadata: Read（自动带）
+- 如果以后要提交 `.github/workflows/*`：还需要 **Workflows: Read and write**
+
+改权限位置：GitHub → 右上角头像 → Settings → Developer settings →
+Personal access tokens → Fine-grained tokens → 选中该 Token → Edit → 勾权限 → Save。
+
+**推送凭据不要写进仓库**，用一次性 header：
+
+```bash
+git -c http.extraheader="Authorization: Basic $(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64 -w0)" push origin main
+```
+
+或用 `git remote set-url` 临时带 Token 后再改回来（不要 commit `.git/config`）。
+
 
 ## 9. 原则（来自项目发起人，务必遵守）
 
