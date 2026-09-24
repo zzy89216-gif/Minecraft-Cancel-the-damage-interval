@@ -232,6 +232,15 @@ CTDI_RCON_PORT=25575 python3 tools/damage_test.py FORGE-1.20.1        # 有 CTDI
 
 ## 9. GitHub 操作备忘
 
+### 发版时改版本号的位置（别漏）
+
+| 目标 | 改哪里 |
+|:---|:---|
+| forge/1.20.1 | `gradle.properties` 的 `mod_version` |
+| fabric/1.20.1 | 同上 |
+| fabric/26.3 | 同上 |
+| forge/1.12.2 | **两处**：`build.gradle` 的 `version = '...'`，以及 `CTDI.java` 的 `VERSION = "..."` |
+
 - 仓库：`zzy89216-gif/Minecraft-Cancel-the-damage-interval`（MIT）
 - Token 只放环境变量，**任何文件/提交/日志里都不要出现 token**
   （自检：在仓库里搜 `_pat_` 与 access-token 的前缀；注意别把前缀字面量写进文档，

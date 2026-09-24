@@ -112,13 +112,27 @@ CTDI 让该方法恒返回 `1.0F`，等价于"攻击永远满冷却"：每次挥
 
 ## 📥 安装
 
-1. **前置**：按上表安装对应 Minecraft + Loader + Java。
-2. 到 [Releases](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval/releases) 下载与你的版本匹配的 jar：
+### 前置需求（已按发布产的依赖声明核对）
+
+| 目标 | 需要 | **不需要** |
+|:---|:---|:---|
+| `ctdi-forge-1.20.1` | Minecraft 1.20.1、Forge **47.x**（`mods.toml`: forge `[47,)`、minecraft `[1.20.1,1.21)`）、Java 17（21 可运行） | 无其它前置 |
+| `ctdi-fabric-1.20.1` | Minecraft 1.20.1、Fabric Loader **≥0.15.0**（`fabric.mod.json`: minecraft `~1.20.1`、java `>=17`） | **不需要 Fabric API** |
+| `ctdi-fabric-26.3` | Minecraft 26.3、Fabric Loader **≥0.19.5**、**Java 25** | **不需要 Fabric API** |
+| `ctdi-forge-1.12.2` | Minecraft 1.12.2、Forge **14.23.5.2859**、**Java 8** | **不需要 MixinBooter / coremod**（纯事件实现，jar 里没有 mixin 类） |
+
+> CTDI 自身不依赖任何其它模组：Fabric 版没把 fabric-api 写进 `depends`，
+> 1.12.2 版完全不用 Mixin。只有"多人游戏时客户端与服务端都装 CTDI"这一条额外要求。
+
+### 安装步骤
+
+1. 按上表装好对应 Minecraft + Loader + Java。
+2. 到 [Releases](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval/releases) 下载匹配的 jar：
    - `ctdi-forge-1.20.1-*.jar`
    - `ctdi-fabric-1.20.1-*.jar`
    - `ctdi-fabric-26.3-*.jar`
    - `ctdi-forge-1.12.2-*.jar`
-3. 放进 `mods/` 目录。
+3. 放进 `mods/` 目录，启动游戏。
 4. **多人游戏请客户端和服务端都装**：伤害判定以服务端为准。
 
 ---

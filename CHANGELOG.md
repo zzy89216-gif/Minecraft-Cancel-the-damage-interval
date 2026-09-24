@@ -38,7 +38,20 @@ server.
 - All targets share version `0.2.0` and a uniform artifact name:
   `ctdi-<loader>-<mcversion>-<version>.jar`.
 - README rewritten for the multi-target layout, including a per-version table of
-  where each mechanic actually lives.
+  where each mechanic actually lives, and an explicit "what you need / what you
+  do **not** need" table (no Fabric API, no MixinBooter / coremod).
+
+### Fixed
+
+- 1.12.2 jar metadata still carried MDK template leftovers, found by inspecting
+  the published artifact: `mcmod.info` had unexpanded `${version}` /
+  `${mcversion}` placeholders (the mod list would have shown the raw
+  placeholders and FML had no real mcversion to match), `pack.mcmeta` said
+  "examplemod resources", and the jar manifest still said
+  `examplemod` / `examplemodsareus`. `mcmod.info` is now expanded by
+  `processResources` from the single `ext.mcVersion` / `ext.forgeVersion`
+  source, and the other two strings are corrected. The v0.2.0 asset was
+  replaced (sha256 `1a46525b...`); the mod code itself is unchanged.
 
 ### Verified
 

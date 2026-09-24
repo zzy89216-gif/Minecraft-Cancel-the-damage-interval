@@ -17,6 +17,10 @@ version = '0.2.0'
 group = 'com.zzy89216.ctdi' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = 'ctdi-forge-1.12.2'
 
+// 版本号的单一来源：依赖声明与 mcmod.info 展开都用这两个变量
+ext.mcVersion = '1.12.2'
+ext.forgeVersion = '14.23.5.2859'
+
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 
 minecraft {
@@ -59,7 +63,7 @@ dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2859'
+    minecraft "net.minecraftforge:forge:${mcVersion}-${forgeVersion}"
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
@@ -85,12 +89,12 @@ dependencies {
 jar {
     manifest {
         attributes([
-            "Specification-Title": "examplemod",
-            "Specification-Vendor": "examplemodsareus",
+            "Specification-Title": "ctdi",
+            "Specification-Vendor": "zzy89216",
             "Specification-Version": "1", // We are version 1 of ourselves
             "Implementation-Title": project.name,
             "Implementation-Version": "${version}",
-            "Implementation-Vendor" :"examplemodsareus",
+            "Implementation-Vendor" :"zzy89216",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
@@ -118,4 +122,13 @@ publishing {
 // 源码里有中文注释，必须显式指定 UTF-8（FG3 默认用平台编码，容器里是 ASCII）
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
+}
+
+// FG3 不会自动展开 mcmod.info 里的占位符（不展开的话模组列表会直接显示 ${version} / ${mcversion}）
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.mcVersion
+    filesMatching("mcmod.info") {
+        expand "version": project.version, "mcversion": project.mcVersion
+    }
 }
