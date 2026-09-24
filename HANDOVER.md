@@ -13,8 +13,8 @@
 
 - 仓库：https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval （public，MIT）
 - 发布：https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval/releases/tag/v0.1.0
-  （资产 `ctdi-0.1.0.jar`，8223 字节，
-  sha256 `fda6eb8d64c7c60c6c187a80eaa79a32f24d0c0e927d862500b6466af9976152`）
+  （资产 `ctdi-0.1.0.jar`，8204 字节，
+  sha256 `ed45d53358273044cc4a9d918e90034e6352d31f615ad3702f28fc9a1a7c4b9d`）
 - 已实测验证的范围（含对照实验）见 §5，**未验证的部分写得同样明确**。
 
 ---
@@ -44,7 +44,7 @@
 ### 3.1 无敌帧 —— `InvulnerabilityMixin`
 
 **注入点**：`LivingEntity#hurt(DamageSource, float)` 方法 **HEAD**。
-**做法**：进入方法时把 `invulnerableTime = 0`、`hurtTime = 0`。
+**做法**：进入方法时把 `invulnerableTime = 0`（**只改这一个字段**）。
 
 **为什么这样是对的（1.20.1 字节码已验证）**：原版 `hurt` 内部有
 `if (invulnerableTime > 10f && !source.is(BYPASSES_INVULNERABILITY))` 分支，
@@ -52,9 +52,14 @@
 清零后所有伤害走完整结算分支（`damageEntity(source, amount)`）。
 
 **验证过的事实**：
-- `invulnerableTime` 字段声明在 `Entity`（protected int），`hurtTime` 声明在 `LivingEntity`（public int）。Mixin 类混入 `LivingEntity`，直接写字段合法，**不需要 AT（access transformer）**。
-- 同一服务端 tick 内处理多次攻击（高 CPS / 多个玩家同时打一个怪）也全部生效，因为注入点早于原判断，而不是靠每 tick 清零。
-- 客户端实体同样跑 `hurt`，所以客户端表现与服务端一致；无网络同步改动。
+- `invulnerableTime` 字段声明在 `Entity`（protected int）。Mixin 类混入 `LivingEntity`，
+  直接写字段合法，**不需要 AT（access transformer）**。
+- 只改这一个字段：`hurtTime`（`LivingEntity`，public int，仅驱动受击红屏/动画）刻意不动，
+  曾经写过 `hurtTime = 0`，后来移除了——它对本功能没有作用，反而会在 `hurt` 提前返回时
+  截断正在播放的受击动画，属于无意义的原版行为改动。
+- 同一服务端 tick 内处理多次攻击也全部生效：注入点早于原版读取该字段，且每次调用都会
+  重新清零，字段不可能拦住紧随其后的下一次调用。（已用同 tick 内的两次伤害实测，见 §5）
+- 无网络同步改动：本 Mixin 在客户端与服务端都会应用；单人游戏由集成服务端执行同一套逻辑。
 
 **注意**：换 Minecraft 版本时必须重新确认 `hurt` 里 i-frames 判断的写法
 （1.20.5+ 重写过伤害流程，字段/分支位置可能变化，不能直接照抄本实现）。
@@ -118,7 +123,8 @@
 | 原版源码核对 | 反编译 1.20.1 官方 client.jar（CFR）+ javap 字节码，确认注入点 | ✅ 两个注入点均命中 |
 | 服务端加载 | 真实 Forge 1.20.1 专用服务端 + 产物 jar 启动 | ✅ `[CTDI] loaded`，无崩溃 |
 | Mixin 应用 | 服务端加 `-Dmixin.debug.verbose=true` | ✅ `Mixing InvulnerabilityMixin ... into LivingEntity`、`Mixing AttackCooldownMixin ... into Player` |
-| 无敌帧移除（**功能实测**） | RCON `/damage` 对同一僵尸连打两次 5 点（约 1 tick 间隔，落在原版 10 tick 窗口内） | ✅ 有 CTDI：20.0f → **10.0f**（两次全生效）<br>对照（无 CTDI）：20.0f → **15.0f**（第二次被原版丢弃） |
+| 无敌帧移除（**功能实测**） | RCON `/damage` 对同一僵尸连打两次 5 点（落在原版 10 tick 窗口内） | ✅ 有 CTDI：20.0f → **10.0f**（两次全生效）<br>对照（无 CTDI）：20.0f → **15.0f**（第二次被原版丢弃） |
+| 无敌帧移除（**同 tick 严格实测**） | 数据包函数 `ctditest:double_hit`（两条 damage 命令在**同一服务端 tick** 执行） | ✅ 有 CTDI：20.0f → **10.0f**<br>对照（无 CTDI）：20.0f → **15.0f** |
 | Mixin 兼容性告警 | 检查服务端日志 | ✅ 0 条（`compatibilityLevel` 用 JAVA_13，与 Mixin 0.8.5 上限一致） |
 | 攻击冷却（玩家侧） | 玩家真实挥砍 | ⚠️ **未做**：无图形客户端可连。代码/refmap/注入点已验证，但"手速=DPS"体感未实测 |
 | 客户端表现 | 受击红屏、准星冷却圈 | ⚠️ 未做（需要图形客户端） |
@@ -139,9 +145,13 @@
    toolchain 自动下载没问题，用 JDK 21 直接跑 Gradle 需要 Gradle ≥8.5）。
    如果以后要在 JDK 21 上构建，把 `gradle/wrapper/gradle-wrapper.properties`
    升到 8.8+ 即可（需回归测试 FG6 兼容性）。
-4. **没动摔落/着火/虚空伤害**：这些走 `BYPASSES_INVULNERABILITY` 或独立逻辑，
-   与 CTDI 的目标无关，保持原版。
-5. **`hurtTime` 清零只影响受击动画/红屏计时**，不影响伤害数值。
+4. **环境伤害也失去无敌帧**（重要，别当成 bug）：注入在通用入口 `hurt`，因此摔落、
+   岩浆等伤害同样不再有 0.5 秒窗口——原版短时间连摔两次，第二次会被差额结算，现在两次
+   都全额。这是"移除无敌帧"的定义所决定的，未来的伤害类型/实体白名单要处理它。
+   `BYPASSES_INVULNERABILITY` 在 1.20.1 只含 `out_of_world` 与 `generic_kill`
+   （**不是**摔落/着火，之前文档写错过），这两类本来就走完整分支，不受影响。
+5. **受击红屏/动画保持原版**：本 Mixin 不触碰 `hurtTime` 与受击动画数据包，
+   连续命中时动画表现与伤害结算互不影响。
 
 ## 5.1 如何复现"实机验证"（含踩过的坑）
 

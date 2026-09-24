@@ -12,10 +12,11 @@ First public release.
 ### Added
 
 - **Remove damage i-frames** (Minecraft 1.20.1, Forge):
-  Mixin into `LivingEntity#hurt` that zeroes `invulnerableTime` (and the
-  client-side `hurtTime` flash timer) before vanilla's i-frame check runs.
-  Every hit now enters full damage resolution; the vanilla
-  `amount <= lastHurt` damage-diff branch is never taken.
+  Mixin into `LivingEntity#hurt` that zeroes `invulnerableTime` before
+  vanilla's i-frame check runs. Every hit now enters full damage resolution;
+  the vanilla `amount <= lastHurt` damage-drop / damage-diff branch is never
+  taken. Nothing else is touched (`hurtTime` and the hit animation are left
+  to vanilla).
 - **Remove attack cooldown**:
   Mixin into `Player#getAttackStrengthScale` always returning `1.0f`, so
   every swing deals full base damage, full sharpness/enchantment scaling,
@@ -33,6 +34,12 @@ First public release.
   rapid full-strength hits from vanilla or CTDI clients.
 - Untouched by design: weapon/enchantment/potion/crit/attribute damage
   math, knockback, shields, armor, all other vanilla combat rules.
+- **Side effect to know about**: the injection sits in the generic
+  `hurt` entry point, so environmental damage (fall, lava, ...) also loses
+  the ~0.5s i-frame window. This follows from "remove i-frames"; a
+  damage-type/entity allowlist is the planned way to opt out.
+  `BYPASSES_INVULNERABILITY` in 1.20.1 only contains `out_of_world` and
+  `generic_kill`, so it is not affected by this change.
 
 ### Verified
 
@@ -42,10 +49,12 @@ First public release.
   server (`Mixing InvulnerabilityMixin ... into LivingEntity`,
   `Mixing AttackCooldownMixin ... into Player`).
 - **i-frames removal measured on a live server** (RCON, two identical
-  5-damage hits ~1 tick apart on the same zombie, inside vanilla's 10-tick
-  window):
+  5-damage hits on the same zombie, inside vanilla's 10-tick window):
   - with CTDI: `20.0f -> 10.0f` (both hits land)
   - without CTDI: `20.0f -> 15.0f` (vanilla drops the second hit)
+  - both modes tested: two rapid RCON commands (~1 tick apart) **and** a
+    datapack function whose two `damage` commands run in the *same* server
+    tick; results identical
   - reproducible with `tools/damage_test.py`
 - Attack-cooldown behavior is **not** gameplay-tested yet: it needs a
   player swinging in a graphical client. Its injection point, refmap entry
