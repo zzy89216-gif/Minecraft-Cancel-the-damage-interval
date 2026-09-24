@@ -1,0 +1,47 @@
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.mod_group_id
+
+base {
+    archivesName = "${project.mod_id}-fabric-${project.minecraft_version}"
+}
+
+java {
+    withSourcesJar()
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 26.x 起 Minecraft 官方 jar 不再混淆，loom 直接使用真实类名，无需 mappings 依赖
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    // 注意：新版 loom（1.17+）已取消 modImplementation，官方模板用普通 implementation
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mod_id", project.mod_id
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 25
+    it.options.encoding = 'UTF-8'
+}
+
+jar {
+    from("${rootDir}/../../LICENSE") {
+        rename { "LICENSE_${project.mod_id}" }
+    }
+}

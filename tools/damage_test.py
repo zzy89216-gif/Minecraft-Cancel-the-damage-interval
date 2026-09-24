@@ -36,15 +36,25 @@ CTDI 伤害机制实机回归测试（RCON）
   python3 tools/damage_test.py WITH-CTDI
   # 想看对照组：把 mods/ctdi-*.jar 移出 mods/，重启服务端，再跑一次
 
+多服务端并行时用环境变量指定连接参数：
+  CTDI_RCON_HOST=127.0.0.1 CTDI_RCON_PORT=25576 CTDI_RCON_PASSWORD=xxx \
+      python3 tools/damage_test.py FABRIC-1.20.1
+  默认值：127.0.0.1 / 25575 / ctditest
+
 只依赖 Python 标准库，不需要额外安装任何东西。
 """
 
+import os
 import socket
 import struct
 import sys
 import time
 
-HOST, PORT, PASSWORD = "127.0.0.1", 25575, "ctditest"
+# 默认值可用环境变量覆盖（多版本/多服务端并行测试时很方便）：
+#   CTDI_RCON_HOST / CTDI_RCON_PORT / CTDI_RCON_PASSWORD
+HOST = os.environ.get("CTDI_RCON_HOST", "127.0.0.1")
+PORT = int(os.environ.get("CTDI_RCON_PORT", "25575"))
+PASSWORD = os.environ.get("CTDI_RCON_PASSWORD", "ctditest")
 
 
 class Rcon:
@@ -86,14 +96,29 @@ class Rcon:
 def main():
     tag = sys.argv[1] if len(sys.argv) > 1 else "run"
     r = Rcon()
-    r.cmd("forceload add 0 0")
-    r.cmd("kill @e[type=minecraft:zombie]")
-    time.sleep(0.5)
-    r.cmd('summon minecraft:zombie 8 100 8 {NoAI:1b,NoGravity:1b,PersistenceRequired:1b,'
-          'CustomName:\'{"text":"ctditest"}\'}')
-    time.sleep(0.5)
     sel = "@e[type=minecraft:zombie,limit=1]"
-    before = r.cmd(f"data get entity {sel} Health")
+    # 召唤 + 查找，失败就重试：服务端刚启动时目标区块可能还没加载，
+    # 此时实体会落在未加载区块里、@e 选择器找不到它。
+    #
+    # 位置默认取高空（y=250）+ NoGravity：避免僵尸卡在方块里被"窒息伤害"污染测量
+    # —— CTDI 移除无敌帧后环境伤害每 tick 都会生效，落在方块里会越打越掉血。
+    # 可用 CTDI_TEST_POS="x y z" 覆盖。
+    pos = os.environ.get("CTDI_TEST_POS", "8 250 8")
+    before = ""
+    for _ in range(20):
+        r.cmd("forceload add 0 0")
+        r.cmd("kill @e[type=minecraft:zombie]")
+        time.sleep(0.3)
+        r.cmd(f'summon minecraft:zombie {pos} {{NoAI:1b,NoGravity:1b,PersistenceRequired:1b,'
+              'CustomName:\'{"text":"ctditest"}\'}')
+        time.sleep(0.5)
+        before = r.cmd(f"data get entity {sel} Health")
+        if "No entity" not in before and "没有实体" not in before:
+            break
+        time.sleep(1)
+    else:
+        print(f"[{tag}] 失败：召唤后仍找不到僵尸（区块未加载/命令语法问题）：{before}")
+        return
 
     # 优先用数据包函数：函数内两条命令保证在同一个服务端 tick 执行（最严格的场景）
     mode = "same-tick (datapack function)"
@@ -103,7 +128,7 @@ def main():
         r.cmd(f"damage {sel} 5 minecraft:generic")
         r.cmd(f"damage {sel} 5 minecraft:generic")
 
-    time.sleep(0.5)
+    # 立刻读数（不再 sleep）：减少环境伤害等其他来源的干扰
     after = r.cmd(f"data get entity {sel} Health")
     print(f"[{tag}] mode: {mode}")
     print(f"[{tag}] before: {before}")

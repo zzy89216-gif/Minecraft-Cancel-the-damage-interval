@@ -6,9 +6,9 @@
 
 *Minecraft Java Edition 战斗机制重构模组*
 
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1-62B47A)](https://www.minecraft.net/)
-[![Mod Loader](https://img.shields.io/badge/Mod%20Loader-Forge%2047-orange)](https://www.minecraftforge.net/)
-[![Java](https://img.shields.io/badge/Java-17%20%7C%2021-red)](https://www.java.com/)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.20.1%20%7C%2026.3%20%7C%201.12.2-62B47A)](https://www.minecraft.net/)
+[![Mod Loader](https://img.shields.io/badge/Mod%20Loader-Forge%20%7C%20Fabric-orange)](https://minecraft.wiki/w/Mods)
+[![Java](https://img.shields.io/badge/Java-8%20%7C%2017%20%7C%2025-red)](https://www.java.com/)
 [![License](https://img.shields.io/badge/License-MIT-blue)](https://opensource.org/license/mit/)
 [![Status](https://img.shields.io/badge/Status-Long--Term%20Maintenance-brightgreen)](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval)
 
@@ -18,241 +18,170 @@
 
 ## 📖 项目简介
 
-**Cancel The Damage Interval**（以下简称 **CTDI**）是一款面向 Minecraft Java Edition 的战斗机制重构模组。
-
-项目的核心目标非常简单：
+**Cancel The Damage Interval**（**CTDI**）是一个 Minecraft Java Edition 战斗机制重构模组：
 
 > **移除原版战斗系统中的无敌帧与攻击冷却，让攻击频率真正由玩家的操作决定。**
 
-CTDI 不添加新的武器、职业、属性或独立战斗系统，而是在尽可能保持原版战斗内容的基础上，针对限制连续攻击的核心机制进行修改。
+CTDI 不添加武器、职业或独立战斗系统，只是在**尽量少改原版机制**的前提下，移除限制连续攻击的两处代码。
 
-项目采用长期维护模式，并计划逐步扩展 Minecraft 版本、Mod Loader 与 Java Runtime 支持。
+> **Remove the limits. Keep the combat.**
+> **手速就是 DPS。**
 
 ---
 
 ## ⚔️ 核心机制
 
-| 限制项 | 原版行为 | CTDI 行为 |
+| 限制项 | 原版行为 | CTDI |
 |:---|:---|:---|
-| **无敌帧（i-frames）** | 受击后存在短暂伤害免疫/差额结算窗口 | 🚫 移除 |
-| **攻击冷却（Attack Cooldown）** | 攻击强度受到冷却时间影响 | 🚫 移除 |
+| **无敌帧（i-frames）** | 受击后有一个短暂免疫窗口；窗口内再次挨打会被**直接丢弃**或**只结算差额** | 🚫 移除 |
+| **攻击冷却（Attack Cooldown）** | 冷却未满时攻击伤害按 `0.2 + s²·0.8` 打折，且无法暴击 | 🚫 移除 |
 
-> **一句话总结：手速就是 DPS。**
-
----
-
-## ✨ 当前特性
-
-| # | 特性 | 说明 | 状态 |
-|:-:|:---|:---|:---:|
-| 1 | **移除无敌帧** | 移除原版伤害免疫窗口，允许连续攻击进入伤害结算 | ✅ 已实现 |
-| 2 | **移除攻击冷却** | 移除原版攻击冷却对攻击强度的限制 | ✅ 已实现 |
-| 3 | **手速驱动 DPS** | 攻击频率直接影响理论输出 | ✅ 已实现 |
-| 4 | **原版机制保留** | 不主动重写完整战斗系统 | ✅ 当前实现 |
-| 5 | **独立配置** | 分别控制无敌帧与攻击冷却 | 📋 规划 |
-| 6 | **实体白名单** | 针对特定实体恢复原版行为 | 📋 规划 |
-| 7 | **延迟处理** | 优化高延迟环境下的连续攻击体验 | 📋 规划 |
-
-> 关于"已实现"到底验证到什么程度：无敌帧移除做过**实机 A/B 对照测试**；
-> 攻击冷却的注入点与运行时应用已验证，但玩家挥砍手感尚未在图形客户端实测。
-> 完整清单见 [HANDOVER.md](HANDOVER.md) 第 5 节。
+其余原版战斗逻辑**全部保留**：武器伤害、附魔、药水、暴击、属性、击退、护盾、盔甲、原版伤害计算。
 
 ---
 
 ## 📦 支持范围
 
-> **当前实际支持以源码、构建配置和 Release 为准。下表中"长期目标"只是规划，尚未实现。**
+以**源码、构建配置和 Release** 为准。
 
-### 当前已实现
+| Minecraft | Mod Loader | Java | 状态 | 实机验证 |
+|:---|:---|:---:|:---|:---|
+| **1.20.1** | **Forge 47.2.0** | 17 | ✅ 已发布 | ✅ 同 tick A/B 通过 |
+| **1.20.1** | **Fabric**（loader 0.15.11） | 17 | ✅ 已发布 | ✅ 同 tick A/B 通过 |
+| **26.3** | **Fabric**（loader 0.19.5） | 25 | ✅ 已发布 | ✅ 同 tick A/B 通过 |
+| **1.12.2** | **Forge 14.23.5.2859** | 8 | ✅ 已发布 | ✅ 同 tick A/B 通过 |
 
-| Minecraft | Mod Loader | Java Runtime |
-|:---|:---|:---|
-| **1.20.1** | **Forge 47.2.0** | **17**（字节码 17，Java 21 亦可运行） |
+> "同 tick A/B 通过"= 在真实专用服务端上，用同一 tick 内两次 5 点伤害做对照：
+> 装 CTDI 掉 10 点，不装 CTDI 只掉 5 点。详见 [HANDOVER.md](HANDOVER.md)。
 
-### 长期目标（规划中，尚未实现）
+---
 
-- **Minecraft**：多版本
-- **Mod Loader**：Fabric、NeoForge、Quilt
-- **Java Runtime**：8、25 等（以对应 Minecraft 版本的要求为准）
+## 🔧 技术实现（各版本差异，别照抄）
 
-> 注意：Minecraft 1.20.1 本身要求 Java 17+，Java 8 只可能对应更老的 Minecraft 版本（如 1.12.2），不会用于 1.20.1。
+两个机制在不同 Minecraft 版本里的**位置、字段名、方法名都不同**。CTDI 每个版本都按该版本的真实字节码重新确认过：
+
+| 目标 | 无敌帧：伤害入口 | 无敌帧：窗口字段 | 旁路标签 | 攻击冷却方法 | 实现方式 |
+|:---|:---|:---|:---|:---|:---|
+| 1.20.1 Forge / Fabric | `LivingEntity#hurt` | `invulnerableTime` | `BYPASSES_INVULNERABILITY` | `Player#getAttackStrengthScale` | Mixin ×2 |
+| 26.3 Fabric | `LivingEntity#hurtServer`（已拆客户端/服务端） | `damageCooldownTime` | `BYPASSES_COOLDOWN` | `Player#getAttackStrengthScale` | Mixin ×2 |
+| 1.12.2 Forge | `EntityLivingBase#attackEntityFrom` | `hurtResistantTime` | 硬编码，无标签 | `EntityPlayer#getCooledAttackStrength` | **纯 Forge 事件**（无 Mixin） |
+
+> 1.12.2 不需要 Mixin：Forge 把 `LivingAttackEvent` 插在伤害入口的**第一行**、把 `AttackEntityEvent`
+> 插在冷却值被读取**之前**，事件里就能干净地清掉无敌帧窗口、把冷却计时器拉满。
+> 冷却字段 `ticksSinceLastSwing` 是 protected，用 Forge 官方 `ObfuscationReflectionHelper` 写入。
+
+### 无敌帧
+
+所有版本的判定都长这样（字段名/标签名随版本变化）：
+
+```java
+if (窗口字段 > 10.0f && !source.is(旁路标签)) {
+    if (伤害 <= 上次伤害) return false;        // 这次攻击被完全丢弃
+    applyDamage(伤害 - 上次伤害);              // 否则只结算差额
+} else {
+    上次伤害 = 伤害;
+    窗口字段 = 20;                            // 重置窗口
+    applyDamage(伤害);                        // 完整伤害
+}
+```
+
+CTDI 在**入口方法头部**把窗口字段清零，于是所有伤害都走完整结算分支：
+
+- 注入点早于原版读取该字段，**同一服务端 tick 内多次命中同样全部生效**（不是靠每 tick 清零）
+- 只改这一个字段，`hurtTime`（受击红屏/动画）不碰，原版表现不变
+- 1.20.1 的 `invulnerableTime` 声明在 `Entity`，26.3 的 `damageCooldownTime` 是 `LivingEntity` 的 public 字段
+
+### 攻击冷却
+
+```java
+float s = player.getAttackStrengthScale(0.5F);   // 0..1 的冷却进度
+伤害 = 基础伤害 * (0.2F + s * s * 0.8F);         // 冷却不满就掉伤害
+附魔伤害 *= s;                                    // 附魔也被打折
+boolean 全力 = s > 0.9F;                          // 暴击/击退/冲刺加成门槛
+```
+
+CTDI 让该方法恒返回 `1.0F`，等价于"攻击永远满冷却"：每次挥砍都是满伤害且可暴击，其余计算保持原版。
+
+### 副作用（务必知道）
+
+注入的是**通用伤害入口**，所以**摔落、岩浆等环境伤害也失去了无敌帧窗口**（原版短时间内连摔两次，第二次会被差额结算；现在是两次全额）。这是"移除无敌帧"的定义决定的，未来的配置项/白名单会用来自定义。
+
+> 注：`BYPASSES_INVULNERABILITY`（1.20.1）只含 `out_of_world`、`generic_kill`，**不包含**摔落/着火，这两类本来就走完整分支。
 
 ---
 
 ## 📥 安装
 
-### 1. 前置要求
-
-- **Minecraft Java Edition 1.20.1**
-- **Forge 47.2.0**（或 ≥ 47 的 1.20.1 系列）：https://files.minecraftforge.net/
-- **Java 17** 或 **Java 21**
-
-### 2. 安装
-
-前往 [Releases](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval/releases) 下载 `ctdi-<version>.jar`，放入 `mods/` 目录，启动游戏。
-
-### 3. 多人游戏
-
-伤害判定以**服务端**为准。建议客户端和服务端都装 CTDI：
-
-| 服务端 | 客户端 | 效果 |
-|:---|:---|:---|
-| CTDI | CTDI | 手速 DPS 完全生效 |
-| CTDI | 原版 | 原版玩家正常游戏，攻击节奏不受影响 |
-| 原版 | CTDI | 客户端手感不变，但服务端仍按原版无敌帧结算 |
+1. **前置**：按上表安装对应 Minecraft + Loader + Java。
+2. 到 [Releases](https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval/releases) 下载与你的版本匹配的 jar：
+   - `ctdi-forge-1.20.1-*.jar`
+   - `ctdi-fabric-1.20.1-*.jar`
+   - `ctdi-fabric-26.3-*.jar`
+   - `ctdi-forge-1.12.2-*.jar`
+3. 放进 `mods/` 目录。
+4. **多人游戏请客户端和服务端都装**：伤害判定以服务端为准。
 
 ---
 
-## 🔧 技术实现
-
-<details>
-<summary>面向开发者的设计说明（按 1.20.1 实际字节码验证过）</summary>
-
-### 伤害免疫（i-frames）
-
-1.20.1 `LivingEntity#hurt` 中的原版逻辑：
-
-```java
-if (this.invulnerableTime > 10.0f && !source.is(BYPASSES_INVULNERABILITY)) {
-    if (amount <= this.lastHurt) return false;          // i-frames 窗口内：伤害被丢弃
-    this.damageEntity(source, amount - this.lastHurt);  // 否则只结算与上次伤害的差额
-    ...
-} else {
-    this.lastHurt = amount;
-    this.invulnerableTime = 20;
-    this.damageEntity(source, amount);                  // 完整伤害
-    ...
-}
-```
-
-`invulnerableTime` 每次受击设为 20（1 秒），每 tick 递减；`> 10` 的分支就是无敌帧窗口
-（约 0.5 秒）。`InvulnerabilityMixin` 在 `hurt` 方法头部、原版读取该字段之前把它清零，
-使**每一次**伤害都走完整结算分支。
-
-关键点：
-
-- 注入在方法 HEAD，早于原版读取该字段，因此每次调用都走完整分支；同一服务端 tick 内
-  处理多次命中同样生效（字段永远不会拦住紧随其后的下一次调用）
-- 只改 `invulnerableTime` 一个字段，**`hurtTime` 不动**：受击红屏/动画由 `hurtTime`
-  与受击动画数据包驱动，原版表现保持原样
-- `invulnerableTime > 0` 的"只结算差额"分支被一并绕过，没有残留的减伤行为
-- `BYPASSES_INVULNERABILITY` 在 1.20.1 只包含 `out_of_world` 与 `generic_kill`，
-  它们本来就走完整分支，不受影响
-- ⚠️ **副作用（需要知道）**：注入的是通用入口 `hurt`，所以**摔落、岩浆等环境伤害同样
-  失去无敌帧窗口**（原版短时间内连续摔落，第二次伤害会被差额结算）。这是"移除无敌帧"
-  的定义带来的直接结果，未来的实体/伤害类型白名单会用来自定义。
-
-### 攻击冷却
-
-1.20.1 `Player#getAttackStrengthScale`：
-
-```java
-public float getAttackStrengthScale(float partialTicks) {
-    return Mth.clamp((attackStrengthTicker + partialTicks) / getAttackSpeedModifier(), 0.0f, 1.0f);
-}
-```
-
-`Player#attack` 用该强度 `s` 计算：
-
-- 基础武器伤害：`s * (0.2 + s*s*0.8)` —— 冷却未满时威力骤降
-- 附魔伤害（锋利等）：`附魔伤害 * s`
-- 暴击 / 击退 / 冲刺加成门槛：`s > 0.9`
-
-`AttackCooldownMixin` 使该方法恒返回 `1.0`，等价于"攻击永远满冷却"：
-
-- 每次攻击都是满强度（满基础伤害 + 满附魔缩放）
-- 暴击、击退、冲刺加成永远可用
-- 攻击速度属性只影响冷却回满速度，不再影响伤害
-- 附魔、药水、属性、护盾、盔甲、原版伤害计算全部保持原版逻辑
-
-### 服务端权威
-
-Mixin 在客户端与服务端同时加载，伤害判定发生在服务端实体上，因此行为以上表（安装一节）为准。
-
-### 技术栈
-
-- Java 17（字节码级；运行于 Java 17 / 21）
-- Forge 47.2.0 + ForgeGradle 6 + Gradle 8.1.1
-- Mixin 0.8.5：annotation processor 生成 refmap，`reobfJar` 任务把引用重映射为
-  SRG 名，产物 jar 可直接用于正式环境（无需 deobf）
-
-</details>
-
----
-
-## 🔨 构建
-
-环境要求：JDK 17（JDK 21 亦可）。
+## 🔨 构建（各目标 JDK 要求不同）
 
 ```bash
 git clone https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval.git
 cd Minecraft-Cancel-the-damage-interval
-./gradlew build
+
+# 1.20.1 Forge —— JDK 17
+cd forge/1.20.1 && ./gradlew build
+
+# 1.20.1 Fabric —— JDK 17
+cd fabric/1.20.1 && ./gradlew build
+
+# 26.3 Fabric —— JDK 25（26.x 起 Mojang 不再混淆，loom 无需 mappings 依赖）
+cd fabric/26.3 && ./gradlew build
+
+# 1.12.2 Forge —— JDK 8（ForgeGradle 3 + Gradle 4.9 + MCP snapshot）
+cd forge/1.12.2 && ./gradlew build
 ```
 
-产物：`build/libs/ctdi-0.1.0.jar`（已 reobf，可直接投放）。
+产物在各自 `build/libs/` 下。首次构建需要下载 Gradle 发行版与 Minecraft 工件，
+在 ARM 手机/容器上实测约 6–12 分钟（1.12.2 首次要反编译整个 Minecraft，更久）。
 
-首次构建会下载 Gradle 发行版、Forge 与 Minecraft 工件，移动端/弱网环境请预留时间与流量（本次实测约 11 分钟）。
+---
+
+## 📊 已验证 / 未验证
+
+| 项目 | 状态 |
+|:---|:---|
+| 各目标 Gradle 构建 | ✅ 四个目标全部真实执行通过（JDK 8 / 17 / 25） |
+| 注入点正确性 | ✅ 逐版本对照**真实字节码 / 反编译源码 / Forge patch** 确认（不靠记忆） |
+| 无敌帧移除效果 | ✅ **四个目标全部**在真实专用服务端做了**同 tick A/B 对照** |
+| 攻击冷却效果 | ⚠️ 注入点与运行时应用已验证；**玩家挥砍手感未在图形客户端实测** |
+| 客户端表现（红屏、准星冷却圈） | ⚠️ 未实测（需要图形客户端） |
+
+> 没验证过的东西不写成已验证。详细清单与复现方法见 [HANDOVER.md](HANDOVER.md)。
 
 ---
 
 ## 🗺️ 路线图
 
-| 方向 | 内容 | 状态 |
-|:---|:---|:---:|
-| **核心战斗机制** | 无敌帧与攻击冷却处理（1.20.1 Forge） | ✅ 已实现 |
-| **配置系统** | 分别控制两项机制、恢复原版行为 | 📋 规划 |
-| **实体白名单** | 针对特定实体恢复原版行为 | 📋 规划 |
-| **网络优化** | 改善多人环境下的战斗体验 | 📋 规划 |
-| **Minecraft 多版本** | 扩展不同 Minecraft 版本 | 🔮 持续适配 |
-| **Forge 其他版本** | 1.21.x 等 | 🔮 持续适配 |
-| **Fabric / NeoForge / Quilt** | 其他 Loader 适配 | 📋 规划 |
-| **Java 8** | 仅对应旧 Minecraft 版本 | 🔮 |
-| **Java 21** | 已可用（字节码 17） | ✅ |
-| **Java 25** | 视新版本 Minecraft 要求 | 🔮 |
+| 方向 | 状态 |
+|:---|:---|
+| 1.20.1 Forge / 1.20.1 Fabric / 26.3 Fabric / 1.12.2 Forge | ✅ 已完成并实测 |
+| 配置系统（两项机制独立开关、白名单） | 📋 规划 |
+| NeoForge、Quilt、更多 MC 版本 | 📋 规划 |
+| GitHub Actions CI（push 自动构建四目标） | 📋 规划 |
 
 ---
 
 ## 🤝 贡献
 
-欢迎提交 Issue 与 Pull Request。
-
-```bash
-git checkout -b feature/amazing
-./gradlew build
-git add .
-git commit -m "Add amazing feature"
-git push origin feature/amazing
-```
-
-提交代码前请确保：
-
-- 项目能够正常构建（`./gradlew build` 通过）
-- 核心战斗机制没有被意外破坏
-- 没有引入不必要的默认行为变化
-- 相关修改已经经过实际测试
-- 没有破坏已有版本或 Mod Loader 的兼容性
-
----
-
-## 🤖 AI 辅助开发
-
-CTDI 的开发过程中使用 AI 作为辅助开发工具（源码分析、实现、Debug、构建、文档）。
-
-AI 生成的代码和内容会经过项目维护者审查、修改与测试。项目的整体方向、功能设计、
-代码取舍、测试结果以及最终发布由项目维护者决定。
-
-开发环境与操作说明见 [HANDOVER.md](HANDOVER.md)，版本历史见 [CHANGELOG.md](CHANGELOG.md)。
+欢迎 Issue / PR。提交前请确保：`./gradlew build` 通过、核心机制没被破坏、改动经过实际测试。
+开发与交接细节见 [HANDOVER.md](HANDOVER.md)，版本历史见 [CHANGELOG.md](CHANGELOG.md)。
 
 ---
 
 ## 📜 许可证
 
-本项目基于 **MIT License** 开源。
-
-MIT © 2026 zzy89216-gif
-
-> Minecraft 本体及 Mojang/微软资产不属于本仓库。
+**MIT License**，MIT © 2026 zzy89216-gif。Minecraft 本体及 Mojang/微软资产不属于本仓库。
 
 ---
 
@@ -260,8 +189,6 @@ MIT © 2026 zzy89216-gif
 
 # ⚔️ Remove the limits. Keep the combat.
 
-*Made for Minecraft combat.*
-
-⭐ **如果这个模组对你有帮助，欢迎给项目一个 Star。**
+⭐ 如果这个项目对你有帮助，欢迎 Star。
 
 </div>

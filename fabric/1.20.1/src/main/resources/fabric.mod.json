@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "ctdi",
+  "version": "${version}",
+  "name": "Cancel The Damage Interval",
+  "description": "Removes damage i-frames (invulnerableTime) and the player attack cooldown. Remove the limits. Keep the combat.",
+  "authors": [
+    "zzy89216"
+  ],
+  "contact": {
+    "homepage": "https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval",
+    "sources": "https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval",
+    "issues": "https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/ctdi/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.zzy89216.ctdi.fabric.CTDIFabric"
+    ]
+  },
+  "mixins": [
+    "ctdi.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17"
+  }
+}

@@ -1,0 +1,16 @@
+[
+{
+  "modid": "ctdi",
+  "name": "Cancel The Damage Interval",
+  "description": "Removes damage i-frames (hurtResistantTime) and the player attack cooldown. Remove the limits. Keep the combat.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "https://github.com/zzy89216-gif/Minecraft-Cancel-the-damage-interval",
+  "updateUrl": "",
+  "authorList": ["zzy89216"],
+  "credits": "Remove the limits. Keep the combat.",
+  "logoFile": "assets/ctdi/icon.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]
