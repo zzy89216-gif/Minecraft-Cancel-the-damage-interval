@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8.5",
+  "package": "com.zzy89216.ctdi.mixin",
+  "compatibilityLevel": "JAVA_13",
+  "mixins": [
+    "InvulnerabilityMixin",
+    "AttackCooldownMixin"
+  ],
+  "refmap": "ctdi.refmap.json",
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
